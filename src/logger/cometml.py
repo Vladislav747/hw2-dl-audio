@@ -51,25 +51,39 @@ class CometMLWriter:
             if resume:
                 if mode == "offline":
                     exp_class = comet_ml.ExistingOfflineExperiment
+                    exp_kwargs = {"experiment_key": self.run_id}
+                    if "offline_directory" in kwargs:
+                        exp_kwargs["offline_directory"] = kwargs["offline_directory"]
+                    self.exp = exp_class(**exp_kwargs)
                 else:
                     exp_class = comet_ml.ExistingExperiment
-
-                self.exp = exp_class(experiment_key=self.run_id)
+                    self.exp = exp_class(experiment_key=self.run_id)
             else:
                 if mode == "offline":
                     exp_class = comet_ml.OfflineExperiment
+                    exp_kwargs = {
+                        "project_name": project_name,
+                        "workspace": workspace,
+                        "experiment_key": self.run_id,
+                        "log_code": kwargs.get("log_code", False),
+                        "log_graph": kwargs.get("log_graph", False),
+                        "auto_metric_logging": kwargs.get("auto_metric_logging", False),
+                        "auto_param_logging": kwargs.get("auto_param_logging", False),
+                    }
+                    if "offline_directory" in kwargs:
+                        exp_kwargs["offline_directory"] = kwargs["offline_directory"]
+                    self.exp = exp_class(**exp_kwargs)
                 else:
                     exp_class = comet_ml.Experiment
-
-                self.exp = exp_class(
-                    project_name=project_name,
-                    workspace=workspace,
-                    experiment_key=self.run_id,
-                    log_code=kwargs.get("log_code", False),
-                    log_graph=kwargs.get("log_graph", False),
-                    auto_metric_logging=kwargs.get("auto_metric_logging", False),
-                    auto_param_logging=kwargs.get("auto_param_logging", False),
-                )
+                    self.exp = exp_class(
+                        project_name=project_name,
+                        workspace=workspace,
+                        experiment_key=self.run_id,
+                        log_code=kwargs.get("log_code", False),
+                        log_graph=kwargs.get("log_graph", False),
+                        auto_metric_logging=kwargs.get("auto_metric_logging", False),
+                        auto_param_logging=kwargs.get("auto_param_logging", False),
+                    )
                 self.exp.set_name(run_name)
                 self.exp.log_parameters(parameters=project_config)
 
