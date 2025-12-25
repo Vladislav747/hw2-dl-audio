@@ -3,7 +3,6 @@ from string import ascii_lowercase
 
 import torch
 
-# TODO add CTC decode
 # TODO add BPE, LM, Beam Search support
 # Note: think about metrics and encoder
 # The design can be remarkably improved
@@ -60,10 +59,10 @@ class CTCTextEncoder:
 
     def ctc_decode(self, inds) -> str:
         """
-        Decode CTC output: remove blanks and merge repeated chars.
+        Decode CTC:
         
         Args:
-            inds: sequence of token indices from model output (argmax)
+            inds: последовательность индексов токенов из словаря 
         """
         if inds is None:
             return ""
@@ -74,9 +73,11 @@ class CTCTextEncoder:
         prev = None
         for i in range(len(inds)):
             idx = int(inds[i])
+            # если индекс равен 0, то это пустой токен, пропускаем
             if idx == 0:
                 prev = None
                 continue
+            # если индекс не равен предыдущему, то добавляем токен в результат прогоняя его через словарь(доставая оттуда значение)
             if idx != prev:
                 result.append(self.ind2char[idx])
             prev = idx

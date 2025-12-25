@@ -50,17 +50,27 @@ def plot_spectrogram(spectrogram, name=None):
         spectrogram (Tensor): spectrogram tensor.
         name (None | str): optional name.
     Returns:
-        image (Image): image of the spectrogram
+        image (PIL.Image): image of the spectrogram
     """
+    if hasattr(spectrogram, 'numpy'):
+        spec_np = spectrogram.numpy()
+    else:
+        spec_np = spectrogram
+
+    if len(spec_np.shape) > 2:
+        spec_np = spec_np.squeeze()
+
+    spec_np = spec_np.T
+    
     plt.figure(figsize=(20, 5))
-    plt.pcolormesh(spectrogram)
-    plt.title(name)
+    plt.imshow(spec_np)
+    plt.colorbar()
+    plt.title(name if name else "Spectrogram")
     buf = io.BytesIO()
-    plt.savefig(buf, format="png")
+    plt.savefig(buf, format="png", bbox_inches='tight')
     buf.seek(0)
 
-    # convert buffer to Tensor
-    image = ToTensor()(PIL.Image.open(buf))
+    image = PIL.Image.open(buf)
 
     plt.close()
 
