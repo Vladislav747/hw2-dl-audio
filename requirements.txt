@@ -12,6 +12,7 @@ comet_ml
 hydra-core
 wget
 datasets
+python-Levenshtein
 
 black
 isort
