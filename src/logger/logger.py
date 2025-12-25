@@ -31,3 +31,4 @@ def setup_logging(save_dir, log_config=None, default_level=logging.INFO, append=
     else:
         print(f"Warning: logging configuration file is not found in {log_config}.")
         logging.basicConfig(level=default_level, filemode="a" if append else "w")
+    logging.info(f"Logging setup complete")
