@@ -59,7 +59,42 @@ class CTCTextEncoder:
         return "".join([self.ind2char[int(ind)] for ind in inds]).strip()
 
     def ctc_decode(self, inds) -> str:
-        pass  # TODO
+        if inds is None:
+            return ""
+        if len(inds) == 0:
+            return ""
+        
+        result_list = []
+        if isinstance(inds, torch.Tensor):
+            temp_list = []
+            for i in range(inds.shape[0]):
+                temp_list.append(int(inds[i].item()))
+            inds = temp_list
+        else:
+            new_list = []
+            for item in inds:
+                if hasattr(item, 'item'):
+                    new_list.append(int(item.item()))
+                else:
+                    new_list.append(int(item))
+            inds = new_list
+        
+        last_char_idx = -1
+        for idx in range(len(inds)):
+            current_idx = int(inds[idx])
+            current_char = self.ind2char[current_idx]
+            if current_idx == 0:
+                last_char_idx = -1
+            else:
+                if last_char_idx != current_idx:
+                    result_list.append(current_char)
+                    last_char_idx = current_idx
+        
+        final_string = ""
+        for ch in result_list:
+            final_string = final_string + ch
+        
+        return final_string.strip()
 
     @staticmethod
     def normalize_text(text: str):

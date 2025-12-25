@@ -8,8 +8,14 @@ def calc_cer(target_text, predicted_text) -> float:
     """
     Character Error Rate
     """
+    if target_text is None:
+        target_text = ""
+    if predicted_text is None:
+        predicted_text = ""
+
+    
     if len(target_text) == 0:
-        return 1.0 if len(predicted_text) > 0 else 0.0
+        return 1.0
     
     # Calculate Levenshtein distance
     edit_distance = distance(target_text, predicted_text)
@@ -22,6 +28,10 @@ def calc_wer(target_text, predicted_text) -> float:
     """
     Word Error Rate
     """
+    if target_text is None:
+        target_text = ""
+    if predicted_text is None:
+        predicted_text = ""
 
     target_words = target_text.split()
     predicted_words = predicted_text.split()
