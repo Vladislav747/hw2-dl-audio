@@ -1,7 +1,7 @@
 import logging
 
 import torch
-import torch.nn.functional as Functional
+import torch.nn.functional as functional
 
 
 def collate_fn(dataset_items: list[dict]):
@@ -34,7 +34,7 @@ def collate_fn(dataset_items: list[dict]):
     for spec in spectrograms:
         spec = spec.squeeze(0)
         pad_size = max_time - spec.shape[-1]
-        padded = Functional.pad(spec, (0, pad_size), mode='constant', value=0)
+        padded = functional.pad(spec, (0, pad_size), mode='constant', value=0)
         batch_spectrograms.append(padded)
     batch_spectrograms = torch.stack(batch_spectrograms)
     
@@ -45,7 +45,7 @@ def collate_fn(dataset_items: list[dict]):
     batch_audios = []
     for audio in audios:
         pad_size = max_audio_len - audio.shape[-1]
-        padded_audio = Functional.pad(audio, (0, pad_size), mode='constant', value=0)
+        padded_audio = functional.pad(audio, (0, pad_size), mode='constant', value=0)
         batch_audios.append(padded_audio)
     batch_audios = torch.stack(batch_audios)
 
