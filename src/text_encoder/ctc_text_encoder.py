@@ -1,5 +1,6 @@
 import re
 from string import ascii_lowercase
+from collections import defaultdict
 
 import torch
 
@@ -83,6 +84,57 @@ class CTCTextEncoder:
             prev = idx
         
         return "".join(result).strip()
+
+    def ctc_beam_search(self, log_probs, beam_size=10, length=None):
+        """
+        CTC beam search decoding.
+        """
+        
+        if length == 0:
+            return ""
+
+        EMPTY_TOK = '^'
+        
+        probs = log_probs.exp()
+        
+        beam = defaultdict(float)
+        beam[("", EMPTY_TOK)] = 1.0
+        
+        for t in range(length):
+            proba = probs[t].cpu().numpy()
+            beam = self._extend_and_merge_beam(beam, proba, EMPTY_TOK)
+            beam = self._truncate(beam, beam_size)
+        
+        best_key = max(beam, key=lambda x: beam[x])
+        prefix, last_char = best_key
+        if last_char != EMPTY_TOK:
+            prefix = prefix + last_char
+        return prefix.strip().replace(EMPTY_TOK, "")
+
+    def _truncate(self, beam, beam_size):
+        sorted_items = sorted(beam.items(), key=lambda x: -x[1])[:beam_size]
+        return dict(sorted_items)
+
+    def _extend_and_merge_beam(self, beam, proba, empty_tok):
+        new_beam = defaultdict(float)
+        for (prefix, last_char), beam_prob in beam.items():
+            for ind, pr in enumerate(proba):
+                new_char = self.ind2char[ind]
+                
+                if ind == 0:
+                    # Blank token - don't add to prefix, reset last_char
+                    new_beam[(prefix, empty_tok)] += beam_prob * pr
+                elif last_char == new_char:
+                    # Same character - extend without adding
+                    new_beam[(prefix, new_char)] += beam_prob * pr
+                else:
+                    # Different character - add last_char to prefix
+                    if last_char == empty_tok:
+                        new_prefix = prefix
+                    else:
+                        new_prefix = prefix + last_char
+                    new_beam[(new_prefix, new_char)] += beam_prob * pr
+        return new_beam
 
     @staticmethod
     def normalize_text(text: str):
