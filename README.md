@@ -42,7 +42,7 @@ python3 train.py -cn=deepspeech2 datasets=example trainer.n_epochs=10 trainer.ov
 
 ```bash
 python3 train.py -cn=deepspeech2 \
-  datasets=example \
+  datasets=onebatchtest \
   model.num_rnn_layers=5 \
   model.rnn_hidden_dim=1024 \
   trainer.n_epochs=50 \
