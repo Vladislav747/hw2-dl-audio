@@ -1,0 +1,9 @@
+_target_: src.model.DeepSpeech2
+input_dim: 128
+num_classes: 28
+rnn_type: "gru"
+num_rnn_layers: 3
+rnn_hidden_dim: 512
+dropout_p: 0.1
+bidirectional: True
+activation: "hardtanh"
