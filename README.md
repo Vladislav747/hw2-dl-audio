@@ -39,10 +39,11 @@ python3 train.py -cn=deepspeech2 datasets=example trainer.n_epochs=10 trainer.ov
 ```
 
 ##### Запуск с параметрами deepspeech2
-
 ```bash
 python3 train.py -cn=deepspeech2 \
   datasets=onebatchtest \
+  model.input_dim=128 \
+  model.n_tokens=28 \
   model.num_rnn_layers=5 \
   model.rnn_hidden_dim=1024 \
   trainer.n_epochs=50 \

@@ -12,7 +12,7 @@ class DeepSpeech2(nn.Module):
     """
     Args:
         input_dim (int): dimension of input vector
-        num_classes (int): number of classfication
+        n_tokens (int): number of tokens in vocabulary
         rnn_type (str, optional): type of RNN cell (default: gru)
         num_rnn_layers (int, optional): number of recurrent layers (default: 5)
         rnn_hidden_dim (int): the number of features in the hidden state `h`
@@ -32,7 +32,7 @@ class DeepSpeech2(nn.Module):
     def __init__(
             self,
             input_dim: int,
-            num_classes: int,
+            n_tokens: int,
             rnn_type: str = "gru",
             num_rnn_layers: int = 5,
             rnn_hidden_dim: int = 512,
@@ -67,7 +67,7 @@ class DeepSpeech2(nn.Module):
 
         self.fc = nn.Sequential(
             LayerNorm(rnn_output_size),
-            Linear(rnn_output_size, num_classes, bias=False),
+            Linear(rnn_output_size, n_tokens, bias=False),
         )
 
     def forward(self, spectrogram: Tensor, spectrogram_length: Tensor, **batch) -> dict:

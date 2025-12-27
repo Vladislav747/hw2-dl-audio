@@ -93,17 +93,26 @@ class DeepSpeech2Extractor(nn.Module):
             out_channels: int = 32,
             activation: str = 'hardtanh',
     ) -> None:
-        super(DeepSpeech2Extractor, self).__init__(input_dim=input_dim, activation=activation)
+        super(DeepSpeech2Extractor, self).__init__()
+        self.input_dim = input_dim
         self.in_channels = in_channels
         self.out_channels = out_channels
+        
+        if activation == 'hardtanh':
+            activation_fn = nn.Hardtanh(min_val=0.0, max_val=20.0)
+        elif activation == 'relu':
+            activation_fn = nn.ReLU()
+        else:
+            raise ValueError(f"Unsupported activation: {activation}")
+        
         self.conv = MaskCNN(
             nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, kernel_size=(41, 11), stride=(2, 2), padding=(20, 5), bias=False),
                 nn.BatchNorm2d(out_channels),
-                self.activation,
+                activation_fn,
                 nn.Conv2d(out_channels, out_channels, kernel_size=(21, 11), stride=(2, 1), padding=(10, 5), bias=False),
                 nn.BatchNorm2d(out_channels),
-                self.activation,
+                activation_fn,
             )
         )
 
