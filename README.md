@@ -30,27 +30,30 @@ python3 train.py -cn=baseline datasets=example_onebatchtest trainer.n_epochs=10 
 
 #### Запуск deepspeech2
 
-```bash
-python3 train.py -cn=deepspeech2 datasets=onebatchtest trainer.n_epochs=1 trainer.override=True writer=cometml 2>&1 | tail -50
-```
-
-```bash
-python3 train.py -cn=deepspeech2 datasets=example trainer.n_epochs=10 trainer.override=True writer=cometml 2>&1 | tail -50
-```
-
-##### Запуск с параметрами deepspeech2
+Простой запуск
 ```bash
 python3 train.py -cn=deepspeech2 \
   datasets=onebatchtest \
-  model.input_dim=128 \
+  trainer.n_epochs=1 \
+  trainer.override=True \
+  writer=cometml \
+  2>&1 | head -50000000
+```
+
+Запуск с параметрами
+```bash
+python3 train.py -cn=deepspeech2 \
+  datasets=onebatchtest \
+  model.n_feats=128 \
   model.n_tokens=28 \
-  model.num_rnn_layers=5 \
-  model.rnn_hidden_dim=1024 \
+  model.num_rnn_layers=3 \
+  model.hidden_size=512 \
+  model.rnn_dropout=0.1 \
+  model.input_dim=32 \
   trainer.n_epochs=50 \
   trainer.override=True \
   writer=cometml
 ```
-
 
 #### Как запустить calc_metrics - пример вызова
 
@@ -67,6 +70,10 @@ source .venv/bin/activate && python3 calc_metrics.py \
 
 ### Отчет по работе
 
+Решил выбрать архитекуру DeepSpeechV2 - она мне показалось простой и понятной
+
+Какие сложности возникали?
+Нельзя было просто так выкачать датасет train-100 или тем более train-360 через реализованные механизмы - поэтому я выкачивал их локально и переделывал запуск под себя
 
 
 
