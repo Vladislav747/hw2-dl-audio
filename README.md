@@ -5,24 +5,29 @@
 
 
 
-#### Установка пакетов
+#### Установка пакетов и настройка виртуального окружения
 
 ```
 source .venv/bin/activate && pip install -r requirements.txt 2>&1 | tail
 ```
 
-#### Запуск скрипта onebatch test
+
+#### Запуск baseline model(для сравнения с deepspeech2)
+
+Запуск dataset onebatch test
 
 ```
 python3 train.py -cn=baseline datasets=onebatchtest trainer.n_epochs=10 trainer.override=True writer=cometml 2>&1 | tail -50
 ```
 
-#### Запуск скрипта example
+Запуск dataset example
 
 
 ```
 python3 train.py -cn=baseline datasets=example trainer.n_epochs=10 trainer.override=True writer=cometml 2>&1 | tail -50
 ```
+
+Запуск dataset example_onebatchtest
 
 ```
 python3 train.py -cn=baseline datasets=example_onebatchtest trainer.n_epochs=10 trainer.override=True writer=cometml 2>&1 | tail -50
@@ -55,20 +60,51 @@ python3 train.py -cn=deepspeech2 \
   writer=cometml
 ```
 
+#### Как запустить inference.py
+
+Скрипт для инференса модели на датасете и сохранения предсказаний.
+
+```bash
+source .venv/bin/activate && python3 inference.py \
+  -cn=inference \
+  model=deepspeech2 \
+  datasets=custom_dir \
+  inferencer.checkpoint_path="saved/checkpoint-epoch50.pth"
+```
+
+Параметры:
+- `model` - конфигурация модели (deepspeech2, baseline и т.д.)
+- `datasets` - конфигурация датасета (custom_dir, example и т.д.)
+- `inferencer.checkpoint_path` - путь к чекпоинту модели
+- `inferencer.save_path` - путь для сохранения предсказаний (по умолчанию: `data/saved/predictions`)
+
+Предсказания сохраняются в формате: `{UtteranceID}.txt` в папке `inferencer.save_path`.
+
 #### Как запустить calc_metrics - пример вызова
+
+Скрипт для подсчета метрик WER/CER на основе предсказаний и транскрипций.
 
 Скрипт работает только с локальными папками(он не скачивает папки откуда то)
 
 Скрипту нужны либы поэтому используем с виртуальным окружением(см установка пакетов)
 
-```
+```bash
 source .venv/bin/activate && python3 calc_metrics.py \
 --transcriptions_dir "calc_metrics_examples/transcriptions_dir_example" \
 --predictions_dir "calc_metrics_examples/predictions_dir_example"
 ```
 
+```
+Параметры:
+- `--transcriptions_dir` - путь к папке с транскрипциями
+- `--predictions_dir` - путь к папке с предсказаниями модели
+```
 
-### Отчет по работе
+#### Демо ноутбук
+
+В корневой директории содержится jupyter ноутбук для запуска проекта
+
+#### Отчет по работе
 
 Решил выбрать архитекуру DeepSpeechV2 - она мне показалось простой и понятной
 
