@@ -77,9 +77,9 @@ python3 train.py -cn=deepspeech2 \
 ```bash
 source .venv/bin/activate && python3 inference.py \
   -cn=inference \
-  model=deepspeech2 \
-  datasets=custom_dir \
-  inferencer.checkpoint_path="saved/checkpoint-epoch50.pth"
+  datasets=onebatchtest \
+  inferencer.from_pretrained="saved/testing/model_best.pth" \
+  inferencer.save_path="predictions_onebatchtest"
 ```
 
 Параметры:
