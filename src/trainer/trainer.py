@@ -81,15 +81,26 @@ class Trainer(BaseTrainer):
         # logging scheme might be different for different partitions
         if mode == "train":  # the method is called only every self.log_step steps
             self.log_spectrogram(**batch)
+            self.log_augmentations(**batch)
         else:
             # Log Stuff
             self.log_spectrogram(**batch)
             self.log_predictions(**batch)
 
-    def log_spectrogram(self, spectrogram, **batch):
-        spectrogram_for_plot = spectrogram[0].detach().cpu()
+    def log_spectrogram(self, spectrogram_augmented=None, spectrogram=None, **batch):
+        if spectrogram_augmented is None:
+            spectrogram_augmented = spectrogram
+        if spectrogram_augmented is None:
+            return
+        
+        spectrogram_for_plot = spectrogram_augmented[0].detach().cpu()
         image = plot_spectrogram(spectrogram_for_plot)
-        self.writer.add_image("spectrogram", image)
+        self.writer.add_image("spectrogram_augmented", image)
+        
+        if "spectrogram_original" in batch:
+            spectrogram_original = batch["spectrogram_original"][0].detach().cpu()
+            image_original = plot_spectrogram(spectrogram_original, name="Original")
+            self.writer.add_image("spectrogram_original", image_original)
 
     def log_predictions(
             self,
@@ -182,3 +193,28 @@ class Trainer(BaseTrainer):
         self.writer.add_table(
             "predictions", pd.DataFrame.from_dict(rows, orient="index")
         )
+    
+    def log_augmentations(self, audio, audio_original=None, spectrogram_augmented=None, spectrogram_original=None, **batch):
+        """
+        Log augmentations: original and augmented audio/spectrograms for visualization.
+        """
+        if audio_original is None or spectrogram_original is None:
+            return
+        
+        sample_idx = 0
+        audio_orig = audio_original[sample_idx].detach().cpu()
+        audio_aug = audio[sample_idx].detach().cpu()
+        
+        if hasattr(self.writer, 'add_audio'):
+            self.writer.add_audio("audio_original", audio_orig, sample_rate=16000)
+            self.writer.add_audio("audio_augmented", audio_aug, sample_rate=16000)
+        
+        if spectrogram_original is not None and spectrogram_augmented is not None:
+            spec_orig = spectrogram_original[sample_idx].detach().cpu()
+            spec_aug = spectrogram_augmented[sample_idx].detach().cpu()
+            
+            image_orig = plot_spectrogram(spec_orig, name="Original")
+            image_aug = plot_spectrogram(spec_aug, name="Augmented")
+            
+            self.writer.add_image("augmentation_original", image_orig)
+            self.writer.add_image("augmentation_augmented", image_aug)
