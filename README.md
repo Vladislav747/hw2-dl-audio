@@ -100,6 +100,42 @@ source .venv/bin/activate && python3 calc_metrics.py \
 - `--predictions_dir` - путь к папке с предсказаниями модели
 ```
 
+
+#### Как посмотреть отчет
+
+- Все экперименты сохраняются в .cometml-runs и в конце эксперименты мы берем ссылку и выполняем команду ниже(нужно чтобы было)
+
+
+пример 
+```
+comet upload /Users/vlad/Documents/Web/hse-dl-audio/.cometml-runs/e9yetmli2svog1gk44lqvdu79y1legx1.zip
+```
+
+
+#### Как загрузить offline логи CometML
+
+Логи сохраняются в папке `comet_logs/` в offline режиме. Чтобы загрузить их в CometML:
+
+1. Убедитесь, что у вас установлен `comet_ml`:
+```bash
+source .venv/bin/activate && pip install comet_ml
+```
+
+2. Загрузите логи:
+```bash
+comet upload comet_logs/
+```
+
+3. Откройте https://www.comet.com и найдите ваш проект `pytorch_template_asr_example`
+
+В интерфейсе CometML вы увидите:
+- **Images** - спектрограммы (original/augmented)
+- **Audio** - аудио файлы (original/augmented)
+- **Tables** - таблицы с предсказаниями
+- **Metrics** - метрики (loss, WER, CER, gradient norm, learning rate)
+
+**Примечание:** Предупреждения `COMET WARNING: An invalid parameter message` не критичны - это просто означает, что CometML не может логировать сложные объекты (словари) как простые параметры. Это нормально для Hydra конфигов.
+
 #### Демо ноутбук
 
 В корневой директории содержится jupyter ноутбук для запуска проекта

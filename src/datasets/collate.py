@@ -27,7 +27,7 @@ def collate_fn(dataset_items: list[dict]):
     audios = [item["audio"] for item in dataset_items]
     
     audio_originals = [item.get("audio_original", item["audio"]) for item in dataset_items]
-    spectrogram_originals = [item.get("spectrogram_original", item["spectrogram_augmentedad"]) for item in dataset_items]
+    spectrogram_originals = [item.get("spectrogram_original", item["spectrogram_augmented"]) for item in dataset_items]
     
     spectrogram_lengths = torch.tensor([spec.shape[-1] for spec in spectrograms], dtype=torch.long)
     text_encoded_lengths = torch.tensor([text_enc.shape[-1] for text_enc in text_encodeds], dtype=torch.long)
