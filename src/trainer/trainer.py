@@ -1,4 +1,6 @@
 from pathlib import Path
+import torch
+import random
 
 import pandas as pd
 
@@ -90,34 +92,93 @@ class Trainer(BaseTrainer):
         self.writer.add_image("spectrogram", image)
 
     def log_predictions(
-        self, text, log_probs, log_probs_length, audio_path, examples_to_log=10, **batch
+            self,
+            text,
+            logits: torch.tensor,
+            log_probs: torch.tensor,
+            log_probs_length: torch.tensor,
+            audio_path,
+            audio: torch.tensor,
+            examples_to_log=5,
+            **batch
     ):
-        # TODO add beam search
-        # Note: by improving text encoder and metrics design
-        # this logging can also be improved significantly
+        indices = random.sample(range(len(text)), min(examples_to_log, len(text)))
 
-        argmax_inds = log_probs.cpu().argmax(-1).numpy()
+        texts = [text[i] for i in indices]
+        logits_cpu = logits[indices].detach().cpu()
+        log_probs_cpu = log_probs[indices].detach().cpu()
+        log_probs_lengths = log_probs_length[indices].detach().cpu().numpy()
+        audio_paths = [audio_path[i] for i in indices]
+        audios = audio[indices].squeeze().numpy()
+
+        log_probs_np = log_probs_cpu.numpy()
+        argmax_inds = log_probs_np.argmax(-1)
         argmax_inds = [
             inds[: int(ind_len)]
-            for inds, ind_len in zip(argmax_inds, log_probs_length.numpy())
+            for inds, ind_len in zip(argmax_inds, log_probs_lengths)
         ]
         argmax_texts_raw = [self.text_encoder.decode(inds) for inds in argmax_inds]
         argmax_texts = [self.text_encoder.ctc_decode(inds) for inds in argmax_inds]
-        tuples = list(zip(argmax_texts, text, argmax_texts_raw, audio_path))
+
+        bs_texts = [
+            self.text_encoder.ctc_beam_search(proba[:int(length)], 3, length=int(length))
+            for proba, length in zip(log_probs_cpu, log_probs_lengths)
+        ]
+        
+        if hasattr(self.text_encoder, 'lm_model') and self.text_encoder.lm_model is not None:
+            lm_texts = [
+                self.text_encoder.lm_ctc_beam_search(logits_vec[:int(length)], 25)
+                for logits_vec, length in zip(logits_cpu, log_probs_lengths)
+            ]
+        else:
+            lm_texts = [""] * len(texts)
+
+        tuples = list(
+            zip(
+                argmax_texts,
+                bs_texts,
+                lm_texts,
+                texts,
+                argmax_texts_raw,
+                audio_paths,
+                audios,
+            )
+        )
 
         rows = {}
-        for pred, target, raw_pred, audio_path in tuples[:examples_to_log]:
+        for (
+                pred,
+                pred_bs,
+                pred_lm,
+                target,
+                raw_pred,
+                audio_path,
+                audio_aug,
+        ) in tuples:
             target = self.text_encoder.normalize_text(target)
             wer = calc_wer(target, pred) * 100
             cer = calc_cer(target, pred) * 100
+
+            # beam_wer = calc_wer(target, pred_bs) * 100
+            # beam_cer = calc_cer(target, pred_bs) * 100
+
+            # lm_wer = calc_wer(target, pred_lm) * 100
+            # lm_cer = calc_cer(target, pred_lm) * 100
 
             rows[Path(audio_path).name] = {
                 "target": target,
                 "raw prediction": raw_pred,
                 "predictions": pred,
-                "wer": wer,
-                "cer": cer,
+                # "beam_predictions": pred_bs,
+                # "lm_predictions": pred_lm,
+                "wer_argmax": wer,
+                "cer_argmax": cer,
+                # "wer_beam": beam_wer,
+                # "cer_beam": beam_cer,
+                # "wer_lm": lm_wer,
+                # "cer_lm": lm_cer,
             }
+
         self.writer.add_table(
             "predictions", pd.DataFrame.from_dict(rows, orient="index")
         )

@@ -6,10 +6,18 @@ train:
     _target_: torchvision.transforms.v2.Compose
     transforms:
       - _target_: src.transforms.wav_augs.Gain
+        sample_rate: 16000
       - _target_: src.transforms.wav_augs.Noise
+        sample_rate: 16000
       - _target_: src.transforms.wav_augs.PitchShift
-      - _target_: src.transforms.wav_augs.TimeStretch
+        sample_rate: 16000
+        min_transpose_semitones: -2
+        max_transpose_semitones: 2
+      - _target_: src.transforms.wav_augs.SpeedChange
+        sample_rate: 16000
+        speed_factor: 0.8
       - _target_: src.transforms.wav_augs.Shift
+        sample_rate: 16000
 inference:
   get_spectrogram:
     _target_: torchaudio.transforms.MelSpectrogram
