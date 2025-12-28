@@ -194,7 +194,7 @@ class Trainer(BaseTrainer):
             "predictions", pd.DataFrame.from_dict(rows, orient="index")
         )
     
-    def log_augmentations(self, audio, audio_original=None, spectrogram_augmented=None, spectrogram_original=None, **batch):
+    def log_augmentations(self, audio, audio_original=None, spectrogram_augmented=None, spectrogram_original=None, audio_path=None, **batch):
         """
         Log augmentations: original and augmented audio/spectrograms for visualization.
         """

@@ -17,15 +17,15 @@ def collate_fn(dataset_items: list[dict]):
             of the tensors.
     """
     logger = logging.getLogger('collate_fn')
-    logger.info(f"[COLLATE] len dataset_items {len(dataset_items)} items")
-    logger.info(f"[COLLATE] structure dataset_items {dataset_items[0].keys()}")
+    logger.info(f"[collate_fn] len dataset_items {len(dataset_items)} items")
+    logger.info(f"[collate_fn] structure dataset_items {dataset_items[0].keys()}")
 
     spectrograms = [item["spectrogram_augmented"] for item in dataset_items]
     text_encodeds = [item["text_encoded"] for item in dataset_items]
     texts = [item["text"] for item in dataset_items]
     audio_paths = [item["audio_path"] for item in dataset_items]
     audios = [item["audio"] for item in dataset_items]
-    
+
     audio_originals = [item.get("audio_original", item["audio"]) for item in dataset_items]
     spectrogram_originals = [item.get("spectrogram_original", item["spectrogram_augmented"]) for item in dataset_items]
     
