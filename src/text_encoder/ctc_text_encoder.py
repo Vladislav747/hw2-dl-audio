@@ -62,7 +62,7 @@ class CTCTextEncoder:
             )
 
         else:
-            print("LM path is not provided, guess we're running without LM")
+            print("LM path is not provided")
 
     def __len__(self):
         return len(self.vocab)
