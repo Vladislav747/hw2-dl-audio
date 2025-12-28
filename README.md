@@ -33,7 +33,7 @@ python3 train.py -cn=baseline datasets=example trainer.n_epochs=10 trainer.overr
 python3 train.py -cn=baseline datasets=example_onebatchtest trainer.n_epochs=10 trainer.override=True writer=cometml 2>&1
 ```
 
-#### Запуск deepspeech2
+#### Запуск deepspeech2 на dataset onebatchtest
 
 Простой запуск
 ```bash
@@ -58,6 +58,16 @@ python3 train.py -cn=deepspeech2 \
   trainer.n_epochs=50 \
   trainer.override=True \
   writer=cometml
+```
+#### Запуск deepspeech2 на dataset example
+
+```bash
+python3 train.py -cn=deepspeech2 \
+  datasets=example \
+  trainer.n_epochs=1 \
+  trainer.override=True \
+  writer=cometml \
+  2>&1
 ```
 
 #### Как запустить inference.py
@@ -121,7 +131,7 @@ comet upload /Users/vlad/Documents/Web/hse-dl-audio/.cometml-runs/e9yetmli2svog1
 Решил выбрать архитекуру DeepSpeechV2 - она мне показалось простой и понятной
 
 Какие сложности возникали?
-Нельзя было просто так выкачать датасет train-100 или тем более train-360 через реализованные механизмы - поэтому я выкачивал их локально и переделывал запуск под себя
+    Нельзя было просто так выкачать датасет train-100 или тем более train-360 через реализованные механизмы - поэтому я выкачивал их локально и переделывал запуск librispeech_dataset чтобы если уже есть файл он его не скачивал снова а только разаархивировал(если не хочется скачивать файл)
 
 
 

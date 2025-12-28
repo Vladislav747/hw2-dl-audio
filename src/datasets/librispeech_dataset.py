@@ -46,24 +46,30 @@ class LibrispeechDataset(BaseDataset):
 
     def _load_part(self, part):
         arch_path = self._data_dir / f"{part}.tar.gz"
-        print(f"Loading part {part}")
-        # Disable SSL
-        ssl_context = ssl._create_unverified_context()
-        with urllib.request.urlopen(URL_LINKS[part], context=ssl_context) as response:
-            total_size = int(response.headers.get('Content-Length', 0))
-            with open(arch_path, 'wb') as f, tqdm(
-                desc=f"Downloading {part}",
-                total=total_size,
-                unit='B',
-                unit_scale=True,
-                unit_divisor=1024,
-            ) as pbar:
-                while True:
-                    chunk = response.read(8192)
-                    if not chunk:
-                        break
-                    f.write(chunk)
-                    pbar.update(len(chunk))
+        
+        if not arch_path.exists():
+            print(f"Downloading {part}")
+            # Disable SSL
+            ssl_context = ssl._create_unverified_context()
+            with urllib.request.urlopen(URL_LINKS[part], context=ssl_context) as response:
+                total_size = int(response.headers.get('Content-Length', 0))
+                with open(arch_path, 'wb') as f, tqdm(
+                    desc=f"Downloading {part}",
+                    total=total_size,
+                    unit='B',
+                    unit_scale=True,
+                    unit_divisor=1024,
+                ) as pbar:
+                    while True:
+                        chunk = response.read(8192)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                        pbar.update(len(chunk))
+        else:
+            print(f"Archive {part}.tar.gz already exists, skipping download")
+        
+        print(f"Extracting {part}")
         shutil.unpack_archive(arch_path, self._data_dir)
         for fpath in (self._data_dir / "LibriSpeech").iterdir():
             shutil.move(str(fpath), str(self._data_dir / fpath.name))
