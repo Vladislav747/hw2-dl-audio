@@ -57,7 +57,6 @@ def main(config):
         config=config,
         device=device,
         dataloaders=dataloaders,
-        text_encoder=text_encoder,
         batch_transforms=batch_transforms,
         save_path=save_path,
         metrics=metrics,

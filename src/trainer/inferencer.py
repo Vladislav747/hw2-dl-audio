@@ -1,5 +1,6 @@
 import torch
 from tqdm.auto import tqdm
+from hydra.utils import instantiate
 
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
@@ -20,7 +21,6 @@ class Inferencer(BaseTrainer):
         config,
         device,
         dataloaders,
-        text_encoder,
         save_path,
         metrics=None,
         batch_transforms=None,
@@ -61,7 +61,7 @@ class Inferencer(BaseTrainer):
         self.model = model
         self.batch_transforms = batch_transforms
 
-        self.text_encoder = text_encoder
+        self.text_encoder = instantiate(config.text_encoder)
 
         # define dataloaders
         self.evaluation_dataloaders = {k: v for k, v in dataloaders.items()}
@@ -120,11 +120,8 @@ class Inferencer(BaseTrainer):
                 the dataloader (possibly transformed via batch transform)
                 and model outputs.
         """
-        # TODO change inference logic so it suits ASR assignment
-        # and task pipeline
-
         batch = self.move_batch_to_device(batch)
-        batch = self.transform_batch(batch)  # transform batch on device -- faster
+        batch = self.transform_batch(batch)
 
         outputs = self.model(**batch)
         batch.update(outputs)
@@ -133,28 +130,44 @@ class Inferencer(BaseTrainer):
             for met in self.metrics["inference"]:
                 metrics.update(met.name, met(**batch))
 
-        # Some saving logic. This is an example
-        # Use if you need to save predictions on disk
-
-        batch_size = batch["logits"].shape[0]
+        batch_size = batch["log_probs"].shape[0]
         current_id = batch_idx * batch_size
 
         for i in range(batch_size):
-            # clone because of
-            # https://github.com/pytorch/pytorch/issues/1995
             logits = batch["logits"][i].clone()
-            label = batch["labels"][i].clone()
-            pred_label = logits.argmax(dim=-1)
+            log_probs = batch["log_probs"][i].clone()
+            text = batch["text"][i]
+            length = int(batch["log_probs_length"][i].item())
+            audio_path = batch.get("audio_path", [None] * batch_size)[i]
+
+            logits_cpu = logits.detach().cpu()
+            log_probs_cpu = log_probs.detach().cpu()
+
+            pred_argmax = self.text_encoder.ctc_decode(
+                log_probs_cpu[:length].argmax(dim=-1).numpy()
+            )
+            
+            pred_beam = self.text_encoder.ctc_beam_search(
+                log_probs_cpu[:length], beam_size=3, length=length
+            )
+
+            pred_lm = ""
+            if hasattr(self.text_encoder, 'lm_model') and self.text_encoder.lm_model is not None:
+                pred_lm = self.text_encoder.lm_ctc_beam_search(
+                    logits_cpu[:length].numpy(), beam_size=25
+                )
 
             output_id = current_id + i
 
             output = {
-                "pred_label": pred_label,
-                "label": label,
+                "prediction_argmax": pred_argmax,
+                "prediction_beam": pred_beam,
+                "prediction_lm": pred_lm,
+                "target": text,
+                "audio_path": audio_path,
             }
 
             if self.save_path is not None:
-                # you can use safetensors or other lib here
                 torch.save(output, self.save_path / part / f"output_{output_id}.pth")
 
         return batch

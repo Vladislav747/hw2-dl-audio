@@ -84,7 +84,7 @@ class LMBeamCERMetric(BaseMetric):
 
             seq_logits = logits[idx, :seq_len]
             
-            if hasattr(self.text_encoder, "lm_ctc_beam_search"):
+            if hasattr(self.text_encoder, 'lm_model') and self.text_encoder.lm_model is not None:
                 pred = self.text_encoder.lm_ctc_beam_search(seq_logits, self.beam_size)
             else:
                 argmax_pred = torch.argmax(seq_logits, dim=-1).numpy()

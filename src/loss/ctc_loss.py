@@ -20,11 +20,7 @@ class CTCLossWrapper(CTCLoss):
         )
 
         if torch.isnan(loss):
-            print(f"NaN loss detected! log_probs shape: {log_probs.shape}")
             print(f"[CTC Loss Error] NaN/Inf loss detected!")
-            print(f"  log_probs stats: min={log_probs.min():.4f}, max={log_probs.max():.4f}, mean={log_probs.mean():.4f}")
-            print(f"  target_lengths: {text_encoded_length}")
-            print(f"  text_encoded: {text_encoded}")
             return {"loss": loss}
 
         return {"loss": loss}
