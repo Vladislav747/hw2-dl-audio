@@ -16,21 +16,38 @@ source .venv/bin/activate && pip install -r requirements.txt 2>&1 | tail
 
 Запуск dataset onebatch test
 
-```
-python3 train.py -cn=baseline datasets=onebatchtest trainer.n_epochs=10 trainer.override=True writer=cometml 2>&1
+```bash
+python3 train.py -cn=baseline \
+  datasets=onebatchtest \
+  trainer.n_epochs=10 \
+  trainer.override=True \
+  writer=cometml \
+  writer.run_name="baseline_onebatchtest" \
+  2>&1
 ```
 
 Запуск dataset example
 
-
-```
-python3 train.py -cn=baseline datasets=example trainer.n_epochs=10 trainer.override=True writer=cometml 2>&1
+```bash
+python3 train.py -cn=baseline \
+  datasets=example \
+  trainer.n_epochs=10 \
+  trainer.override=True \
+  writer=cometml \
+  writer.run_name="baseline_example" \
+  2>&1
 ```
 
 Запуск dataset example_onebatchtest
 
-```
-python3 train.py -cn=baseline datasets=example_onebatchtest trainer.n_epochs=10 trainer.override=True writer=cometml 2>&1
+```bash
+python3 train.py -cn=baseline \
+  datasets=example_onebatchtest \
+  trainer.n_epochs=10 \
+  trainer.override=True \
+  writer=cometml \
+  writer.run_name="baseline_example_onebatchtest" \
+  2>&1
 ```
 
 #### Запуск deepspeech2 на dataset onebatchtest
@@ -42,6 +59,7 @@ python3 train.py -cn=deepspeech2 \
   trainer.n_epochs=1 \
   trainer.override=True \
   writer=cometml \
+  writer.run_name="deepspeech2_example_onebatchtest" \
   2>&1
 ```
 
@@ -57,7 +75,19 @@ python3 train.py -cn=deepspeech2 \
   model.input_dim=32 \
   trainer.n_epochs=50 \
   trainer.override=True \
-  writer=cometml
+  writer=cometml \
+  writer.run_name="deepspeech2_onebatchtest_params" 
+```
+
+Запуск с кастомным именем эксперимента в CometML
+```bash
+python3 train.py -cn=deepspeech2 \
+  datasets=onebatchtest \
+  trainer.n_epochs=1 \
+  trainer.override=True \
+  writer=cometml \
+  writer.run_name="deepspeech2_onebatchtest" \
+  2>&1
 ```
 #### Запуск deepspeech2 на dataset example
 
@@ -67,6 +97,19 @@ python3 train.py -cn=deepspeech2 \
   trainer.n_epochs=1 \
   trainer.override=True \
   writer=cometml \
+  writer.run_name="deepspeech2_example" \
+  2>&1
+```
+
+#### Запуск deepspeech2 на dataset train_clean_360
+
+```bash
+python3 train.py -cn=deepspeech2 \
+  datasets=train_clean_360 \
+  trainer.n_epochs=50 \
+  trainer.override=True \
+  writer=cometml \
+  writer.run_name="deepspeech2_train_clean_360" \
   2>&1
 ```
 
