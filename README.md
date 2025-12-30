@@ -80,7 +80,7 @@ python3 train.py -cn=deepspeech2 \
 python3 inference.py \
   -cn=inference \
   datasets=test_clean \
-  inferencer.from_pretrained="saved/deepspeech2_example/model_best.pth" \
+  inferencer.from_pretrained="saved/deepspeech2_360/model_best.pth" \
   inferencer.save_path="predictions_test_clean"
 ```
 
@@ -90,7 +90,7 @@ python3 inference.py \
 python3 inference.py \
   -cn=inference \
   datasets=test_other \
-  inferencer.from_pretrained="saved/deepspeech2_example/model_best.pth" \
+  inferencer.from_pretrained="saved/deepspeech2_augs_strong_360/model_best.pth" \
   inferencer.save_path="predictions_test_other"
 ```
 
@@ -100,10 +100,7 @@ python3 inference.py \
 
 **Примеры путей к сохраненным моделям (`inferencer.from_pretrained`):**
 
-Baseline модели:
-- `saved/baseline_onebatchtest/model_best.pth`
-- `saved/baseline_example/model_best.pth`
-- `saved/baseline_example_onebatchtest/model_best.pth`
+Модели содержать сохранненые веса моделей
 
 DeepSpeech2 модели:
 - `saved/deepspeech2_onebatchtest/model_best.pth`
@@ -118,7 +115,7 @@ DeepSpeech2 модели:
 source .venv/bin/activate && python3 inference.py \
   -cn=inference \
   datasets=test_other \
-  inferencer.from_pretrained="saved/deepspeech2_train_clean_360/model_best.pth" \
+  inferencer.from_pretrained="saved/deepspeech2_360/model_best.pth" \
   inferencer.save_path="predictions_deepspeech2_360"
 ```
 
@@ -134,7 +131,7 @@ source .venv/bin/activate && python3 inference.py \
 
 Скрипт для подсчета метрик WER/CER на основе предсказаний и транскрипций.
 
-Скрипт работает только с локальными папками(он не скачивает папки откуда то)
+Скрипт работает только с локальными папками(он не скачивает папки откуда то - вам нужно загрузить репозиторий и положить папки в корень и указать до них путь)
 
 Скрипту нужны либы поэтому используем с виртуальным окружением(см установка пакетов)
 
@@ -172,7 +169,7 @@ comet upload /Users/vlad/Documents/Web/hse-dl-audio/.cometml-runs/e9yetmli2svog1
 - Клонирует репозиторий
 - Устанавливает все зависимости
 - Запускает быстрый тест на onebatchtest датасете
-- Показывает примеры запуска полного обучения и inference
+- Показывает примеры запуска обучения и inference
 - Демонстрирует просмотр результатов
 
 Репозиторий - https://github.com/Vladislav747/hw2-dl-audio
@@ -182,6 +179,25 @@ comet upload /Users/vlad/Documents/Web/hse-dl-audio/.cometml-runs/e9yetmli2svog1
 #### Отчет по работе
 
 Решил выбрать архитекуру DeepSpeechV2 - она мне показалось простой и понятной
+
+Результаты прогона
+
+```python
+python3 inference.py \
+  -cn=inference \
+  datasets=test_clean \
+  inferencer.from_pretrained="saved/deepspeech2_360/model_best.pth" \
+  inferencer.save_path="predictions_test_clean"
+```
+
+```
+ test_CER_(Argmax): 0.7635895211785624
+    test_WER_(Argmax): 1.0135311097073487
+    test_CER_(BeamSearch): 0.7680725542526388
+    test_WER_(BeamSearch): 1.0219167681526289
+    test_CER_(LM_BeamSearch): 0.7635895211785624
+    test_WER_(LM_BeamSearch): 1.0135311097073487
+```
 
 Какие сложности возникали?
    - Нельзя было просто так выкачать датасет train-100 или тем более train-360 через реализованные механизмы - поэтому я выкачивал их локально и переделывал запуск librispeech_dataset чтобы если уже есть файл он его не скачивал снова а только разаархивировал(если не хочется скачивать файл) - чтобы работало локальное скачивание надо положить файл архива в datasets/librispeech - сама разархивация не долгая и не сильно напряжная по ресурсам)

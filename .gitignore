@@ -103,10 +103,11 @@ ENV/
 # input data, saved log, checkpoints, hydra outputs
 data/
 input/
-saved/
 wandb/
 .cometml-runs/
 outputs/
+saved
+*.patch
 
 # editor, os cache directory
 .vscode/
