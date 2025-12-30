@@ -1,5 +1,5 @@
 test:
   _target_: src.datasets.LibrispeechDataset
-  part: "test-other"
+  part: "test-clean"
   instance_transforms: ${transforms.instance_transforms.inference}
 

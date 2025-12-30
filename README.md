@@ -11,45 +11,6 @@
 source .venv/bin/activate && pip install -r requirements.txt 2>&1 | tail
 ```
 
-
-#### Запуск baseline model(для сравнения с deepspeech2)
-
-Запуск dataset onebatch test
-
-```bash
-python3 train.py -cn=baseline \
-  datasets=onebatchtest \
-  trainer.n_epochs=10 \
-  trainer.override=True \
-  writer=cometml \
-  writer.run_name="baseline_onebatchtest" \
-  2>&1
-```
-
-Запуск dataset example
-
-```bash
-python3 train.py -cn=baseline \
-  datasets=example \
-  trainer.n_epochs=10 \
-  trainer.override=True \
-  writer=cometml \
-  writer.run_name="baseline_example" \
-  2>&1
-```
-
-Запуск dataset example_onebatchtest
-
-```bash
-python3 train.py -cn=baseline \
-  datasets=example_onebatchtest \
-  trainer.n_epochs=10 \
-  trainer.override=True \
-  writer=cometml \
-  writer.run_name="baseline_example_onebatchtest" \
-  2>&1
-```
-
 #### Запуск deepspeech2 на dataset onebatchtest
 
 Простой запуск
@@ -118,7 +79,7 @@ python3 train.py -cn=deepspeech2 \
 ```bash
 python3 inference.py \
   -cn=inference \
-  datasets=example \
+  datasets=test_clean \
   inferencer.from_pretrained="saved/deepspeech2_example/model_best.pth" \
   inferencer.save_path="predictions_test_clean"
 ```
@@ -156,9 +117,9 @@ DeepSpeech2 модели:
 ```bash
 source .venv/bin/activate && python3 inference.py \
   -cn=inference \
-  datasets=onebatchtest \
-  inferencer.from_pretrained="saved/deepspeech2_example/model_best.pth" \
-  inferencer.save_path="predictions_onebatchtest"
+  datasets=test_other \
+  inferencer.from_pretrained="saved/deepspeech2_train_clean_360/model_best.pth" \
+  inferencer.save_path="predictions_deepspeech2_360"
 ```
 
 ```
