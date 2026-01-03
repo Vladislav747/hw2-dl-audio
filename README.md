@@ -180,6 +180,9 @@ comet upload /Users/vlad/Documents/Web/hse-dl-audio/.cometml-runs/e9yetmli2svog1
 
 Решил выбрать архитекуру DeepSpeechV2 - она мне показалось простой и понятной
 
+Все метрики и эксперименты тут(публичный доступ)
+https://www.comet.com/melo-malo/pytorch-template-asr-example?shareable=wVd1kUkDsbAUMhY6Q7sFS9LUN
+
 ##### Логи обучения: как быстро обучалась сеть
 
 Финально я обучал две модели с augs_strong и без на train_clean_360
